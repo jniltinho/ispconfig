@@ -1,0 +1,79 @@
+################################################
+# ISPConfig Logfile configuration for vlogger
+################################################
+
+LogFormat "%v %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined_ispconfig
+CustomLog "| /usr/local/ispconfig/server/scripts/vlogger -s access.log -t \"%Y%m%d-access.log\" /var/log/ispconfig/httpd" combined_ispconfig
+
+<tmpl_loop name="ip_adresses">
+NameVirtualHost {tmpl_var name="ip_address"}:{tmpl_var name="port"}
+<VirtualHost {tmpl_var name="ip_address"}:{tmpl_var name="port"}>
+  ServerName localhost
+  ServerAdmin linuxpro@linuxpro.com.br
+  DocumentRoot /var/www/htdocs
+<tmpl_if name='port' op='==' value='443'>
+  #SSL Configuration
+  SSLEngine On
+  SSLCertificateFile /usr/local/ispconfig/interface/ssl/ispserver.crt
+  SSLCertificateKeyFile /usr/local/ispconfig/interface/ssl/ispserver.key
+</tmpl_if>
+</VirtualHost>
+</tmpl_loop>
+
+
+<IfModule mod_headers.c>
+	<LocationMatch "/.well-known/acme-challenge/*">
+		Header set Content-Type "text/plain"
+	</LocationMatch>
+</IfModule>
+
+<Directory /var/www/clients>
+    AllowOverride None
+	<tmpl_if name='apache_version' op='>' value='2.2' format='version'>
+	Require all denied
+	<tmpl_else>
+	Order Deny,Allow
+	Deny from all
+	</tmpl_if>
+</Directory>
+
+# Do not allow access to the root file system of the server for security reasons
+<Directory />
+    AllowOverride None
+	<tmpl_if name='apache_version' op='>' value='2.2' format='version'>
+	Require all denied
+	<tmpl_else>
+	Order Deny,Allow
+	Deny from all
+	</tmpl_if>
+</Directory>
+
+<Directory /var/www/conf>
+    AllowOverride None
+	<tmpl_if name='apache_version' op='>' value='2.2' format='version'>
+	Require all denied
+	<tmpl_else>
+	Order Deny,Allow
+	Deny from all
+	</tmpl_if>
+</Directory>
+
+# Except of the following directories that contain website scripts
+<Directory /usr/local/ispconfig/interface/web/myadmin>
+		<tmpl_if name='apache_version' op='>' value='2.2' format='version'>
+		Require all granted
+		<tmpl_else>
+                Order allow,deny
+                Allow from all
+		</tmpl_if>
+</Directory>
+
+
+<Directory /var/www/htdocs>
+		<tmpl_if name='apache_version' op='>' value='2.2' format='version'>
+		Require all granted
+		<tmpl_else>
+                Order allow,deny
+                Allow from all
+		</tmpl_if>
+</Directory>
