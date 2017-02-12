@@ -22,58 +22,69 @@ NameVirtualHost {tmpl_var name="ip_address"}:{tmpl_var name="port"}
 
 
 <IfModule mod_headers.c>
-	<LocationMatch "/.well-known/acme-challenge/*">
+	    <LocationMatch "/.well-known/acme-challenge/*">
 		Header set Content-Type "text/plain"
-	</LocationMatch>
+	    </LocationMatch>
 </IfModule>
 
+Alias /phpMyAdmin /usr/local/ispconfig/interface/web/myadmin
+Alias /phpmyadmin /usr/local/ispconfig/interface/web/myadmin
+
+<Directory /usr/local/ispconfig/interface/web/myadmin>
+AddType application/x-httpd-php .php .php3 .php4 .php5
+        <tmpl_if name='apache_version' op='>' value='2.2' format='version'>
+        Require all granted
+        <tmpl_else>
+        Order allow,deny
+        Allow from all
+        </tmpl_if>
+</Directory>
+<Directory /usr/local/ispconfig/interface/web/myadmin/libraries>
+        <tmpl_if name='apache_version' op='>' value='2.2' format='version'>
+        Require all denied
+        <tmpl_else>
+        Order Deny,Allow
+        Deny from all
+        </tmpl_if>
+</Directory>
+
+
 <Directory /var/www/clients>
-    AllowOverride None
-	<tmpl_if name='apache_version' op='>' value='2.2' format='version'>
-	Require all denied
-	<tmpl_else>
-	Order Deny,Allow
-	Deny from all
-	</tmpl_if>
+        AllowOverride None
+	    <tmpl_if name='apache_version' op='>' value='2.2' format='version'>
+	    Require all denied
+	    <tmpl_else>
+	    Order Deny,Allow
+	    Deny from all
+	    </tmpl_if>
 </Directory>
 
 # Do not allow access to the root file system of the server for security reasons
 <Directory />
-    AllowOverride None
-	<tmpl_if name='apache_version' op='>' value='2.2' format='version'>
-	Require all denied
-	<tmpl_else>
-	Order Deny,Allow
-	Deny from all
-	</tmpl_if>
+        AllowOverride None
+	    <tmpl_if name='apache_version' op='>' value='2.2' format='version'>
+	    Require all denied
+	    <tmpl_else>
+	    Order Deny,Allow
+	    Deny from all
+	    </tmpl_if>
 </Directory>
 
 <Directory /var/www/conf>
-    AllowOverride None
-	<tmpl_if name='apache_version' op='>' value='2.2' format='version'>
-	Require all denied
-	<tmpl_else>
-	Order Deny,Allow
-	Deny from all
-	</tmpl_if>
+        AllowOverride None
+	    <tmpl_if name='apache_version' op='>' value='2.2' format='version'>
+	    Require all denied
+	    <tmpl_else>
+	    Order Deny,Allow
+	    Deny from all
+	    </tmpl_if>
 </Directory>
-
-# Except of the following directories that contain website scripts
-<Directory /usr/local/ispconfig/interface/web/myadmin>
-		<tmpl_if name='apache_version' op='>' value='2.2' format='version'>
-		Require all granted
-		<tmpl_else>
-                Order allow,deny
-                Allow from all
-		</tmpl_if>
-</Directory>
-
 
 <Directory /var/www/htdocs>
 		<tmpl_if name='apache_version' op='>' value='2.2' format='version'>
 		Require all granted
 		<tmpl_else>
-                Order allow,deny
-                Allow from all
+        Order allow,deny
+        Allow from all
 		</tmpl_if>
 </Directory>
